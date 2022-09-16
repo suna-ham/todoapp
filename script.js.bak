@@ -1,0 +1,95 @@
+// 브라우저 로컬 스토리지에 저장 부분
+
+let localStorageValue = [];
+
+if (!localStorage.getItem('dataArray')) {
+    localStorage.setItem('dataArray', '[]')
+} else {
+    localStorageValue = JSON.parse(localStorage.getItem('dataArray'))
+    for (const it of localStorageValue) {
+        document.querySelector('#tasks').innerHTML += `
+        <div class="task ${it.complete && 'completed'}">
+            <span class="taskname">
+            ${it.value}
+            </span>
+            <button class="delete">
+                <i class="far fa-trash-alt"></i>
+            </button>
+        </div>    
+    `;
+    }
+}
+
+
+
+// 일정 완료ㆍ삭제 기능 갱신
+
+const functionReload = () => {
+    if (document.querySelector('.task')) {
+        const tasks = document.querySelectorAll('.taskname');
+        for (let i = 0; i < tasks.length; i++) {
+            tasks[i].addEventListener('click', function () {
+                this.classList.toggle('completed');
+                localStorageValue[i].complete = !localStorageValue[i].complete
+                localStorage.setItem('dataArray', JSON.stringify(localStorageValue))
+            })
+        }
+        document.querySelector("#newtask input").value = "";
+    }
+
+    if (document.querySelector('.task')) {
+        const current_tasks = document.querySelectorAll('.delete');
+
+        for (let i = 0; i < current_tasks.length; i++) {
+            current_tasks[i].addEventListener('click', function () {
+                this.parentNode.remove();
+                localStorageValue = localStorageValue.filter((it, ix) => ix !== i)
+                localStorage.setItem('dataArray', JSON.stringify(localStorageValue))
+            })
+        }
+    }
+}
+
+functionReload() // 로딩시 완료ㆍ삭제 기능 넣기
+
+
+
+
+// 일정 추가
+
+document.querySelector('#push').addEventListener('click', function () {
+    if (document.querySelector('#newtask input').value.length == 0) {
+        alert("Please Enter a Task")
+    } else {
+        document.querySelector('#tasks').innerHTML += `
+            <div class="task">
+                <span class="taskname">
+                ${document.querySelector('#newtask input').value}
+                </span>
+                <button class="delete">
+                    <i class="far fa-trash-alt"></i>
+                </button>
+            </div>    
+        `;
+
+        localStorageValue.push({
+            value: document.querySelector('#newtask input').value,
+            complete: false
+        })
+
+        localStorage.setItem('dataArray', JSON.stringify(localStorageValue))
+
+        functionReload()
+    }
+})
+
+
+
+
+
+
+// 엔터키 부분
+
+addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') document.querySelector('#push').click()
+})
